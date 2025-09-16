@@ -262,9 +262,6 @@ export default function Assessment() {
                         <Label htmlFor={id} className="cursor-pointer">
                           {opt.label}
                         </Label>
-                        <span className="ml-auto text-xs px-2 py-0.5 rounded bg-secondary text-secondary-foreground">
-                          {value}
-                        </span>
                       </div>
                     );
                   })}
