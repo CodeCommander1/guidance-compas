@@ -110,7 +110,9 @@ export default defineSchema({
     userId: v.id("users"),
     role: v.union(v.literal("student"), v.literal("school"), v.literal("admin")),
     schoolName: v.optional(v.string()),
-  }).index("by_user", ["userId"]),
+  })
+    .index("by_user", ["userId"])
+    .index("by_role", ["role"]),
 
   // New tables for enhanced recommendation system
   studentMarks: defineTable({
