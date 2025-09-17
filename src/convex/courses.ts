@@ -49,7 +49,7 @@ export const search = query({
     return courses.filter(course => 
       course.name.toLowerCase().includes(args.searchTerm.toLowerCase()) ||
       course.description.toLowerCase().includes(args.searchTerm.toLowerCase()) ||
-      course.subjects.some(subject => 
+      course.subjects.some((subject: string) => 
         subject.toLowerCase().includes(args.searchTerm.toLowerCase())
       )
     );

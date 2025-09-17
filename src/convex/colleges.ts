@@ -1,5 +1,6 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
+import { Id } from "./_generated/dataModel";
 
 export const list = query({
   args: {
@@ -35,7 +36,7 @@ export const getById = query({
     
     // Get course details for courses offered
     const courses = await Promise.all(
-      college.coursesOffered.map(courseId => ctx.db.get(courseId))
+      college.coursesOffered.map((courseId: Id<"courses">) => ctx.db.get(courseId))
     );
     
     return {

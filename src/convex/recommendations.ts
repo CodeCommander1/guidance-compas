@@ -56,13 +56,14 @@ export const generateRecommendations = mutation({
       let score = 50; // base score
       const reasons: string[] = [];
       
-      // Match interests
-      if (user.interests) {
-        const matchingInterests = user.interests.filter(interest =>
-          course.subjects.some(subject => 
+      // Match interests (safely access optional custom user fields)
+      const userInterests = (user as { interests?: string[] } | undefined)?.interests;
+      if (userInterests && userInterests.length > 0) {
+        const matchingInterests = userInterests.filter((interest: string) =>
+          course.subjects.some((subject: string) =>
             subject.toLowerCase().includes(interest.toLowerCase())
           ) ||
-          course.careerOpportunities.some(career =>
+          course.careerOpportunities.some((career: string) =>
             career.toLowerCase().includes(interest.toLowerCase())
           )
         );
@@ -73,8 +74,9 @@ export const generateRecommendations = mutation({
         }
       }
       
-      // Education level compatibility
-      if (user.educationLevel === "class_12") {
+      // Education level compatibility (safely access optional custom user field)
+      const educationLevel = (user as { educationLevel?: string } | undefined)?.educationLevel;
+      if (educationLevel === "class_12") {
         if (course.category === "science" || course.category === "commerce" || course.category === "arts") {
           score += 10;
           reasons.push("Suitable for Class 12 students");

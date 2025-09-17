@@ -184,7 +184,7 @@ export default function Dashboard() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      {user?.interests?.length ? "85%" : "45%"}
+                      {(user as any)?.interests?.length ? "85%" : "45%"}
                     </div>
                     <p className="text-xs text-muted-foreground">Add interests to improve</p>
                   </CardContent>
@@ -579,19 +579,19 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <label className="text-sm font-medium">Education Level</label>
-                    <p className="text-muted-foreground">{user?.educationLevel || "Not provided"}</p>
+                    <p className="text-muted-foreground">{(user as any)?.educationLevel || "Not provided"}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium">Location</label>
-                    <p className="text-muted-foreground">{user?.location || "Not provided"}</p>
+                    <p className="text-muted-foreground">{(user as any)?.location || "Not provided"}</p>
                   </div>
                 </div>
                 
-                {user?.interests && user.interests.length > 0 && (
+                {(user as any)?.interests && (user as any).interests.length > 0 && (
                   <div>
                     <label className="text-sm font-medium">Interests</label>
                     <div className="flex flex-wrap gap-2 mt-2">
-                      {user.interests.map((interest) => (
+                      {(user as any).interests.map((interest: string) => (
                         <span
                           key={interest}
                           className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"

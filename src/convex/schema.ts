@@ -1,5 +1,6 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { authTables } from "@convex-dev/auth/server";
 
 export const courseCategoryValidator = v.union(
   v.literal("science"),
@@ -10,17 +11,8 @@ export const courseCategoryValidator = v.union(
 );
 
 export default defineSchema({
-  users: defineTable({
-    name: v.optional(v.string()),
-    email: v.optional(v.string()),
-    emailVerificationTime: v.optional(v.number()),
-    phone: v.optional(v.string()),
-    phoneVerificationTime: v.optional(v.number()),
-    isAnonymous: v.optional(v.boolean()),
-    educationLevel: v.optional(v.string()),
-    location: v.optional(v.string()),
-    interests: v.optional(v.array(v.string())),
-  }),
+  // Register Convex Auth tables and extend the users table with your fields
+  ...authTables,
 
   courses: defineTable({
     name: v.string(),

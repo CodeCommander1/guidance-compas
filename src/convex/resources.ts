@@ -37,7 +37,7 @@ export const search = query({
     return resources.filter(resource => 
       resource.title.toLowerCase().includes(args.searchTerm.toLowerCase()) ||
       resource.description.toLowerCase().includes(args.searchTerm.toLowerCase()) ||
-      resource.tags.some(tag => 
+      resource.tags.some((tag: string) => 
         tag.toLowerCase().includes(args.searchTerm.toLowerCase())
       )
     );
