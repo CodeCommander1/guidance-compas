@@ -447,7 +447,7 @@ export const seedDatabase = mutation({
       {
         title: "Pharmacist & Clinical Research",
         description: "Pharmaceutical care and clinical research operations.",
-        courseId: courseIds.findIndex ? courseIds.findIndex(() => false) as any : courseIds[1], // fallback
+        courseId: courseNameToId.get("Bachelor of Pharmacy") || courseIds[1], // B.Pharm
         requiredSkills: ["Pharmacology", "Regulatory", "Clinical Ops", "Documentation"],
         jobRoles: ["Pharmacist", "Clinical Research Associate", "Drug Safety Associate"],
         salaryRange: "₹4-12 LPA",
@@ -471,7 +471,7 @@ export const seedDatabase = mutation({
       {
         title: "Economics & Policy Analysis",
         description: "Economic research, market analysis, and public policy.",
-        courseId: courseIds.findIndex ? courseIds.findIndex(() => false) as any : courseIds[2], // fallback
+        courseId: courseNameToId.get("Bachelor of Economics") || courseIds[2], // B.Econ
         requiredSkills: ["Econometrics", "Data Analysis", "Research", "Communication"],
         jobRoles: ["Policy Analyst", "Economist", "Business Analyst", "Risk Analyst"],
         salaryRange: "₹4-15 LPA",
@@ -483,7 +483,7 @@ export const seedDatabase = mutation({
       {
         title: "Journalism & Media",
         description: "News reporting, editing, content production, and broadcasting.",
-        courseId: courseIds.findIndex ? courseIds.findIndex(() => false) as any : courseIds[0], // fallback
+        courseId: courseNameToId.get("Bachelor of Journalism and Mass Communication") || courseIds[0], // BJMC
         requiredSkills: ["Writing", "Editing", "Research", "Communication"],
         jobRoles: ["Journalist", "TV Reporter", "Editor", "Content Strategist", "PR Officer"],
         salaryRange: "₹3-12 LPA",
