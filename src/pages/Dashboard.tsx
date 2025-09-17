@@ -133,7 +133,7 @@ export default function Dashboard() {
             <TabsTrigger value="marks">Marks</TabsTrigger>
             <Button
               variant="secondary"
-              className="h-9 text-lg px-8 py-6 rounded-xl"
+              className="h-9 px-3"
               onClick={() => navigate("/assessment")}
             >
               Take Assessment
