@@ -87,15 +87,6 @@ export default function Hero() {
               >
                 Explore Courses
               </Button>
-
-              <Button
-                variant="secondary"
-                size="lg"
-                onClick={() => navigate("/assessment")}
-                className="text-lg px-8 py-6 rounded-xl"
-              >
-                Take Assessment
-              </Button>
             </motion.div>
 
             {/* Stats */}

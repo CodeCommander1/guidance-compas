@@ -131,13 +131,12 @@ export default function Dashboard() {
           <TabsList className="flex items-center gap-2 flex-wrap">
             <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
             <TabsTrigger value="marks">Marks</TabsTrigger>
-            <Button
-              variant="secondary"
-              className="h-9 px-3"
+            <TabsTrigger
+              value="assessment"
               onClick={() => navigate("/assessment")}
             >
               Take Assessment
-            </Button>
+            </TabsTrigger>
             <TabsTrigger value="timeline">Timeline</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
           </TabsList>

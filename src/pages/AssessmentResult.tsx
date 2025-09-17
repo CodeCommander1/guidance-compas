@@ -142,7 +142,7 @@ export default function AssessmentResult() {
             </div>
 
             <div className="text-sm text-muted-foreground">
-              <strong>How we calculated this:</strong> 60% Academic Performance + 40% Interest Assessment
+              <strong>How we calculated this:</strong> 50% Academic Performance + 50% Interest Assessment
             </div>
           </CardContent>
         </Card>

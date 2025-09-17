@@ -166,12 +166,12 @@ export const computeStreamRecommendation = query({
       vocational: (assessment.interestScores.vocational / maxScores.vocational) * 100,
     };
 
-    // Apply weighted formula: 60% academic + 40% interest
+    // Apply weighted formula: 50% academic + 50% interest
     const finalScores = {
-      science: (0.6 * marks.averages.science) + (0.4 * normalizedInterest.science),
-      commerce: (0.6 * marks.averages.commerce) + (0.4 * normalizedInterest.commerce),
-      arts: (0.6 * marks.averages.arts) + (0.4 * normalizedInterest.arts),
-      vocational: (0.6 * marks.averages.vocational) + (0.4 * normalizedInterest.vocational),
+      science: (0.5 * marks.averages.science) + (0.5 * normalizedInterest.science),
+      commerce: (0.5 * marks.averages.commerce) + (0.5 * normalizedInterest.commerce),
+      arts: (0.5 * marks.averages.arts) + (0.5 * normalizedInterest.arts),
+      vocational: (0.5 * marks.averages.vocational) + (0.5 * normalizedInterest.vocational),
     };
 
     // Find primary and alternative recommendations
