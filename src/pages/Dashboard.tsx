@@ -127,9 +127,17 @@ export default function Dashboard() {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="recommendations" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-4 lg:w-[700px]">
+          {/* Tabs + Take Assessment button inline next to Marks */}
+          <TabsList className="flex items-center gap-2 flex-wrap">
             <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
             <TabsTrigger value="marks">Marks</TabsTrigger>
+            <Button
+              variant="secondary"
+              className="h-9 text-lg px-8 py-6 rounded-xl"
+              onClick={() => navigate("/assessment")}
+            >
+              Take Assessment
+            </Button>
             <TabsTrigger value="timeline">Timeline</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
           </TabsList>
