@@ -105,6 +105,13 @@ export default defineSchema({
     isActive: v.boolean(),
   }).index("by_category", ["category"]),
 
+  // Role-based access table
+  userRoles: defineTable({
+    userId: v.id("users"),
+    role: v.union(v.literal("student"), v.literal("school"), v.literal("admin")),
+    schoolName: v.optional(v.string()),
+  }).index("by_user", ["userId"]),
+
   // New tables for enhanced recommendation system
   studentMarks: defineTable({
     studentId: v.id("users"),

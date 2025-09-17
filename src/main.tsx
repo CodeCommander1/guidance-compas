@@ -18,6 +18,7 @@ import Careers from "./pages/Careers.tsx";
 import Resources from "./pages/Resources.tsx";
 import Assessment from "./pages/Assessment.tsx";
 import AssessmentResult from "./pages/AssessmentResult.tsx";
+import School from "./pages/School.tsx";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
@@ -61,6 +62,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/resources" element={<Resources />} />
             <Route path="/assessment" element={<Assessment />} />
             <Route path="/assessment/result" element={<AssessmentResult />} />
+            <Route path="/school" element={<School />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

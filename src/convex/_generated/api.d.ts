@@ -23,6 +23,7 @@ import type * as http from "../http.js";
 import type * as importantDates from "../importantDates.js";
 import type * as recommendations from "../recommendations.js";
 import type * as resources from "../resources.js";
+import type * as roles from "../roles.js";
 import type * as seedData from "../seedData.js";
 import type * as studentMarks from "../studentMarks.js";
 import type * as users from "../users.js";
@@ -46,6 +47,7 @@ declare const fullApi: ApiFromModules<{
   importantDates: typeof importantDates;
   recommendations: typeof recommendations;
   resources: typeof resources;
+  roles: typeof roles;
   seedData: typeof seedData;
   studentMarks: typeof studentMarks;
   users: typeof users;
