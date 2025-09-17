@@ -80,6 +80,15 @@ export default function Dashboard() {
     }
   };
 
+  const handleResetMarks = () => {
+    setMarks({
+      science: { physics: 0, chemistry: 0, biology: 0, mathematics: 0, computerScience: 0 },
+      commerce: { accountancy: 0, businessStudies: 0, economics: 0, mathematics: 0, english: 0 },
+      arts: { history: 0, politicalScience: 0, sociology: 0, psychology: 0, languages: 0, fineArts: 0 },
+      vocational: { agriculture: 0, it: 0, homeScience: 0, hospitality: 0, design: 0, skills: 0 },
+    });
+  };
+
   const updateMark = (stream: keyof typeof marks, subject: string, value: string) => {
     const numValue = Math.max(0, Math.min(100, parseInt(value) || 0));
     setMarks(prev => ({
@@ -346,7 +355,10 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={handleResetMarks}>
+                Reset
+              </Button>
               <Button onClick={handleSaveMarks}>
                 Save Academic Marks
               </Button>
