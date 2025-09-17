@@ -120,3 +120,84 @@ export const markAsViewed = mutation({
     await ctx.db.patch(args.recommendationId, { isViewed: true });
   },
 });
+
+export const computeStreamRecommendation = query({
+  args: { userId: v.optional(v.id("users")) },
+  handler: async (ctx, args) => {
+    const user = args.userId ? await ctx.db.get(args.userId) : await getCurrentUser(ctx);
+    if (!user) throw new Error("User not found");
+
+    // Get latest marks and assessment
+    const marks = await ctx.db
+      .query("studentMarks")
+      .withIndex("by_student", (q) => q.eq("studentId", user._id))
+      .order("desc")
+      .first();
+
+    const assessment = await ctx.db
+      .query("assessments")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .order("desc")
+      .first();
+
+    if (!marks || !assessment) {
+      return {
+        error: "Missing data",
+        hasMarks: !!marks,
+        hasAssessment: !!assessment,
+      };
+    }
+
+    // Normalize interest scores to 0-100 scale
+    // Max possible per stream depends on how many questions map to it
+    const maxScores = {
+      science: 20, // 4 questions max (3 direct + 1 shared) * 5 points
+      commerce: 20, // 4 questions max (3 direct + 1 shared) * 5 points  
+      arts: 20, // 4 questions max (3 direct + 1 shared) * 5 points
+      vocational: 15, // 3 questions max (3 direct) * 5 points
+    };
+
+    const normalizedInterest = {
+      science: (assessment.interestScores.science / maxScores.science) * 100,
+      commerce: (assessment.interestScores.commerce / maxScores.commerce) * 100,
+      arts: (assessment.interestScores.arts / maxScores.arts) * 100,
+      vocational: (assessment.interestScores.vocational / maxScores.vocational) * 100,
+    };
+
+    // Apply weighted formula: 60% academic + 40% interest
+    const finalScores = {
+      science: (0.6 * marks.averages.science) + (0.4 * normalizedInterest.science),
+      commerce: (0.6 * marks.averages.commerce) + (0.4 * normalizedInterest.commerce),
+      arts: (0.6 * marks.averages.arts) + (0.4 * normalizedInterest.arts),
+      vocational: (0.6 * marks.averages.vocational) + (0.4 * normalizedInterest.vocational),
+    };
+
+    // Find primary and alternative recommendations
+    const sortedStreams = Object.entries(finalScores)
+      .sort(([,a], [,b]) => b - a)
+      .map(([stream, score]) => ({ stream: stream as keyof typeof finalScores, score }));
+
+    const primary = sortedStreams[0];
+    const second = sortedStreams[1];
+
+    let alternative: { stream: string; reason: "within_5" | "within_10" } | undefined;
+
+    if (second && primary.score > 0) {
+      const percentDiff = ((primary.score - second.score) / primary.score) * 100;
+      if (percentDiff <= 5) {
+        alternative = { stream: second.stream, reason: "within_5" };
+      } else if (percentDiff <= 10) {
+        alternative = { stream: second.stream, reason: "within_10" };
+      }
+    }
+
+    return {
+      primary: primary.stream,
+      alternative,
+      scores: finalScores,
+      academic: marks.averages,
+      interest: normalizedInterest,
+      rawInterest: assessment.interestScores,
+    };
+  },
+});

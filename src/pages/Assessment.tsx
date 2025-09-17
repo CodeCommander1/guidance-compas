@@ -5,220 +5,90 @@ import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { toast } from "sonner";
 
-type Category = "Science" | "Commerce" | "Arts" | "Vocational";
+type LikertAnswer = {
+  id: string;
+  value: number; // 1-5
+};
 
 type Question = {
   id: string;
-  prompt: string;
-  options: { label: string; category: Category }[];
+  statement: string;
 };
 
-// 15 questions exactly, mapping each option to a category
+// 15 Likert scale statements
 const QUESTIONS: Question[] = [
-  {
-    id: "q1",
-    prompt: "Which activity do you enjoy the most?",
-    options: [
-      { label: "Solving puzzles and math problems", category: "Science" },
-      { label: "Managing money or running a small business", category: "Commerce" },
-      { label: "Writing stories, painting, or debating", category: "Arts" },
-      { label: "Fixing gadgets or doing hands-on tasks", category: "Vocational" },
-    ],
-  },
-  {
-    id: "q2",
-    prompt: "Your favorite school subject is:",
-    options: [
-      { label: "Mathematics / Physics", category: "Science" },
-      { label: "Economics / Business Studies", category: "Commerce" },
-      { label: "History / Literature", category: "Arts" },
-      { label: "Computer / Crafts / Technical subjects", category: "Vocational" },
-    ],
-  },
-  {
-    id: "q3",
-    prompt: "How do you prefer to work on a project?",
-    options: [
-      { label: "Experimenting and testing ideas logically", category: "Science" },
-      { label: "Planning budgets and calculating costs", category: "Commerce" },
-      { label: "Designing creative presentations", category: "Arts" },
-      { label: "Building models or using tools", category: "Vocational" },
-    ],
-  },
-  {
-    id: "q4",
-    prompt: "Which career sounds most exciting to you?",
-    options: [
-      { label: "Scientist, Engineer, Doctor", category: "Science" },
-      { label: "Entrepreneur, Accountant, Banker", category: "Commerce" },
-      { label: "Journalist, Teacher, Artist", category: "Arts" },
-      { label: "Technician, ITI Professional, Skilled Worker", category: "Vocational" },
-    ],
-  },
-  {
-    id: "q5",
-    prompt: "What type of problems do you enjoy solving?",
-    options: [
-      { label: "Logical or technical challenges", category: "Science" },
-      { label: "Business or money-related issues", category: "Commerce" },
-      { label: "Social or cultural issues", category: "Arts" },
-      { label: "Practical, hands-on problems", category: "Vocational" },
-    ],
-  },
-  {
-    id: "q6",
-    prompt: "If given a free day, what would you do?",
-    options: [
-      { label: "Read about science/technology", category: "Science" },
-      { label: "Track stock markets/business news", category: "Commerce" },
-      { label: "Write, paint, or attend cultural events", category: "Arts" },
-      { label: "Repair/build something", category: "Vocational" },
-    ],
-  },
-  {
-    id: "q7",
-    prompt: "Which skill describes you best?",
-    options: [
-      { label: "Analytical & logical", category: "Science" },
-      { label: "Good with numbers & money", category: "Commerce" },
-      { label: "Creative & expressive", category: "Arts" },
-      { label: "Practical & technical", category: "Vocational" },
-    ],
-  },
-  {
-    id: "q8",
-    prompt: "In a group project, your role is usually:",
-    options: [
-      { label: "The problem-solver with technical ideas", category: "Science" },
-      { label: "The planner and organizer", category: "Commerce" },
-      { label: "The presenter/communicator", category: "Arts" },
-      { label: "The one who builds/executes", category: "Vocational" },
-    ],
-  },
-  {
-    id: "q9",
-    prompt: "Your dream work environment is:",
-    options: [
-      { label: "Research lab, hospital, or tech company", category: "Science" },
-      { label: "Corporate office or own business", category: "Commerce" },
-      { label: "Media house, classroom, or creative studio", category: "Arts" },
-      { label: "Workshop, fieldwork, or factory", category: "Vocational" },
-    ],
-  },
-  {
-    id: "q10",
-    prompt: "Which government exam/job appeals to you most?",
-    options: [
-      { label: "Engineering/Medical Entrance (JEE/NEET)", category: "Science" },
-      { label: "UPSC/CA/Bank PO", category: "Commerce" },
-      { label: "Civil Services/Teaching/Journalism", category: "Arts" },
-      { label: "ITI/Skilled Trades/Technical Officer", category: "Vocational" },
-    ],
-  },
-  {
-    id: "q11",
-    prompt: "What motivates you the most?",
-    options: [
-      { label: "Discovering new knowledge", category: "Science" },
-      { label: "Earning & managing wealth", category: "Commerce" },
-      { label: "Expressing ideas & creativity", category: "Arts" },
-      { label: "Building real things with skills", category: "Vocational" },
-    ],
-  },
-  {
-    id: "q12",
-    prompt: "Your strength in exams is:",
-    options: [
-      { label: "Problem-solving questions", category: "Science" },
-      { label: "Data interpretation & accounts", category: "Commerce" },
-      { label: "Essay writing & theory", category: "Arts" },
-      { label: "Practical tests", category: "Vocational" },
-    ],
-  },
-  {
-    id: "q13",
-    prompt: "Which type of book/article do you like to read?",
-    options: [
-      { label: "Science magazines/tech blogs", category: "Science" },
-      { label: "Business/finance news", category: "Commerce" },
-      { label: "Literature, history, biographies", category: "Arts" },
-      { label: "DIY manuals, how-to guides", category: "Vocational" },
-    ],
-  },
-  {
-    id: "q14",
-    prompt: "If you had to choose a competition, it would be:",
-    options: [
-      { label: "Science/Math Olympiad", category: "Science" },
-      { label: "Business Plan Contest", category: "Commerce" },
-      { label: "Debate/Art/Literature Contest", category: "Arts" },
-      { label: "Robotics/Model-making Contest", category: "Vocational" },
-    ],
-  },
-  {
-    id: "q15",
-    prompt: "Your role model is likely to be:",
-    options: [
-      { label: "Scientist/Doctor/Engineer", category: "Science" },
-      { label: "Business leader/Investor", category: "Commerce" },
-      { label: "Writer/Teacher/Artist", category: "Arts" },
-      { label: "Technician/Innovator", category: "Vocational" },
-    ],
-  },
+  { id: "q1", statement: "I enjoy solving complex mathematical problems" },
+  { id: "q2", statement: "I am curious about how things work scientifically" },
+  { id: "q3", statement: "I like conducting experiments and analyzing results" },
+  { id: "q4", statement: "I am interested in business and entrepreneurship" },
+  { id: "q5", statement: "I enjoy working with numbers and financial data" },
+  { id: "q6", statement: "I like understanding market trends and economics" },
+  { id: "q7", statement: "I express myself well through writing or speaking" },
+  { id: "q8", statement: "I am interested in history, culture, and society" },
+  { id: "q9", statement: "I enjoy creative activities like art, music, or literature" },
+  { id: "q10", statement: "I prefer hands-on, practical work" },
+  { id: "q11", statement: "I enjoy building or creating things with my hands" },
+  { id: "q12", statement: "I like learning technical skills and crafts" },
+  { id: "q13", statement: "I am good at logical reasoning and analysis" },
+  { id: "q14", statement: "I prefer working on projects that help people directly" },
+  { id: "q15", statement: "I am comfortable presenting ideas to groups" },
+];
+
+const LIKERT_OPTIONS = [
+  { value: 1, label: "Strongly Disagree" },
+  { value: 2, label: "Disagree" },
+  { value: 3, label: "Neutral" },
+  { value: 4, label: "Agree" },
+  { value: 5, label: "Strongly Agree" },
 ];
 
 export default function Assessment() {
   const navigate = useNavigate();
-  const [answers, setAnswers] = useState<Record<string, Category | undefined>>({});
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const submitAssessment = useMutation(api.assessments.submitLikert);
 
   const progress = useMemo(() => {
-    const answered = Object.values(answers).filter(Boolean).length;
+    const answered = Object.keys(answers).length;
     return Math.round((answered / QUESTIONS.length) * 100);
   }, [answers]);
 
-  const handleChange = (qid: string, category: Category) => {
-    setAnswers((prev) => ({ ...prev, [qid]: category }));
+  const handleChange = (qid: string, value: number) => {
+    setAnswers((prev) => ({ ...prev, [qid]: value }));
   };
 
   const canSubmit = useMemo(() => {
-    return QUESTIONS.every((q) => !!answers[q.id]);
+    return QUESTIONS.every((q) => answers[q.id] !== undefined);
   }, [answers]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!canSubmit) return;
 
-    const tally: Record<Category, number> = {
-      Science: 0,
-      Commerce: 0,
-      Arts: 0,
-      Vocational: 0,
-    };
+    try {
+      const answerArray: LikertAnswer[] = QUESTIONS.map((q) => ({
+        id: q.id,
+        value: answers[q.id],
+      }));
 
-    Object.values(answers).forEach((cat) => {
-      if (cat) tally[cat] += 1;
-    });
-
-    // Determine primary by highest score; tie-break by fixed order
-    const order: Category[] = ["Science", "Commerce", "Arts", "Vocational"];
-    const primary = order.reduce((best, cur) => (tally[cur] > tally[best] ? cur : best), order[0]);
-
-    navigate("/assessment/result", {
-      state: {
-        scores: tally,
-        primary,
-        total: QUESTIONS.length,
-      },
-    });
+      await submitAssessment({ answers: answerArray });
+      toast.success("Assessment completed successfully!");
+      navigate("/assessment/result");
+    } catch (error) {
+      toast.error("Failed to submit assessment. Please try again.");
+      console.error("Assessment submission error:", error);
+    }
   };
 
   return (
     <div className="container mx-auto px-4 py-10">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Career Interest Assessment</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Interest Assessment</h1>
           <p className="text-muted-foreground">
-            Answer {QUESTIONS.length} quick questions to discover your best-fit field.
+            Rate each statement based on how much you agree with it (1-5 scale).
           </p>
         </div>
         <div className="text-right">
@@ -244,23 +114,23 @@ export default function Assessment() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">
-                  {idx + 1}. {q.prompt}
+                  {idx + 1}. {q.statement}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <RadioGroup
-                  value={answers[q.id] ?? ""}
-                  onValueChange={(val) => handleChange(q.id, val as Category)}
-                  className="grid gap-3"
+                  value={answers[q.id]?.toString() ?? ""}
+                  onValueChange={(val) => handleChange(q.id, parseInt(val))}
+                  className="grid grid-cols-1 sm:grid-cols-5 gap-3"
                 >
-                  {q.options.map((opt) => {
-                    const value = opt.category;
-                    const id = `${q.id}-${value}`;
+                  {LIKERT_OPTIONS.map((opt) => {
+                    const id = `${q.id}-${opt.value}`;
                     return (
-                      <div key={id} className="flex items-center space-x-3 rounded-lg border p-3 hover:bg-accent/30">
-                        <RadioGroupItem id={id} value={value} />
-                        <Label htmlFor={id} className="cursor-pointer">
-                          {opt.label}
+                      <div key={id} className="flex items-center space-x-2 rounded-lg border p-3 hover:bg-accent/30">
+                        <RadioGroupItem id={id} value={opt.value.toString()} />
+                        <Label htmlFor={id} className="cursor-pointer text-sm">
+                          <div className="font-medium">{opt.value}</div>
+                          <div className="text-xs text-muted-foreground">{opt.label}</div>
                         </Label>
                       </div>
                     );
@@ -277,7 +147,7 @@ export default function Assessment() {
           Back
         </Button>
         <Button disabled={!canSubmit} onClick={handleSubmit}>
-          See My Result
+          Submit Assessment
         </Button>
       </div>
     </div>

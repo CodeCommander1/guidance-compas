@@ -1,6 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
 import { api } from "@/convex/_generated/api";
 import { motion } from "framer-motion";
@@ -13,9 +16,10 @@ import {
   User,
   Bell,
   Star,
-  Clock
+  Clock,
+  Calculator
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
@@ -27,12 +31,30 @@ export default function Dashboard() {
   const recommendations = useQuery(api.recommendations.getForUser);
   const upcomingDates = useQuery(api.importantDates.getUpcoming, { limit: 5 });
   const generateRecommendations = useMutation(api.recommendations.generateRecommendations);
+  const upsertMarks = useMutation(api.studentMarks.upsertForStudent);
+  const currentMarks = useQuery(api.studentMarks.getCurrentUserMarks, {});
+
+  // Marks form state
+  const [classLevel, setClassLevel] = useState<"Class10" | "Class12">("Class12");
+  const [marks, setMarks] = useState({
+    science: { physics: 0, chemistry: 0, biology: 0, mathematics: 0, computerScience: 0 },
+    commerce: { accountancy: 0, businessStudies: 0, economics: 0, mathematics: 0, english: 0 },
+    arts: { history: 0, politicalScience: 0, sociology: 0, psychology: 0, languages: 0, fineArts: 0 },
+    vocational: { agriculture: 0, it: 0, homeScience: 0, hospitality: 0, design: 0, skills: 0 },
+  });
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       navigate("/auth");
     }
   }, [isLoading, isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (currentMarks) {
+      setClassLevel(currentMarks.classLevel);
+      setMarks(currentMarks.streams);
+    }
+  }, [currentMarks]);
 
   const handleGenerateRecommendations = async () => {
     try {
@@ -41,6 +63,32 @@ export default function Dashboard() {
     } catch (error) {
       toast.error("Failed to generate recommendations");
     }
+  };
+
+  const handleSaveMarks = async () => {
+    if (!user) return;
+    
+    try {
+      await upsertMarks({
+        studentId: user._id,
+        classLevel,
+        streams: marks,
+      });
+      toast.success("Marks saved successfully!");
+    } catch (error) {
+      toast.error("Failed to save marks");
+    }
+  };
+
+  const updateMark = (stream: keyof typeof marks, subject: string, value: string) => {
+    const numValue = Math.max(0, Math.min(100, parseInt(value) || 0));
+    setMarks(prev => ({
+      ...prev,
+      [stream]: {
+        ...prev[stream],
+        [subject]: numValue,
+      },
+    }));
   };
 
   if (isLoading) {
@@ -79,9 +127,10 @@ export default function Dashboard() {
 
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
+          <TabsList className="grid w-full grid-cols-5 lg:w-[700px]">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+            <TabsTrigger value="marks">Marks</TabsTrigger>
             <TabsTrigger value="timeline">Timeline</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
           </TabsList>
@@ -293,6 +342,154 @@ export default function Dashboard() {
                   <Button onClick={handleGenerateRecommendations}>
                     Generate Recommendations
                   </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="marks" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight">Academic Marks Entry</h2>
+                <p className="text-muted-foreground">
+                  School Entry (Demo) - Enter your academic performance for personalized recommendations
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calculator className="h-4 w-4" />
+                <span className="text-sm text-muted-foreground">Marks out of 100</span>
+              </div>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Class Level</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Select value={classLevel} onValueChange={(value: "Class10" | "Class12") => setClassLevel(value)}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Class10">Class 10</SelectItem>
+                    <SelectItem value="Class12">Class 12</SelectItem>
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+
+            {/* Science Stream */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Science Stream</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                  {Object.entries(marks.science).map(([subject, value]) => (
+                    <div key={subject} className="space-y-2">
+                      <Label className="capitalize">{subject.replace(/([A-Z])/g, ' $1').trim()}</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={value}
+                        onChange={(e) => updateMark('science', subject, e.target.value)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Commerce Stream */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Commerce Stream</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                  {Object.entries(marks.commerce).map(([subject, value]) => (
+                    <div key={subject} className="space-y-2">
+                      <Label className="capitalize">{subject.replace(/([A-Z])/g, ' $1').trim()}</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={value}
+                        onChange={(e) => updateMark('commerce', subject, e.target.value)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Arts Stream */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Arts/Humanities Stream</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {Object.entries(marks.arts).map(([subject, value]) => (
+                    <div key={subject} className="space-y-2">
+                      <Label className="capitalize">{subject.replace(/([A-Z])/g, ' $1').trim()}</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={value}
+                        onChange={(e) => updateMark('arts', subject, e.target.value)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Vocational Stream */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Vocational Stream</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {Object.entries(marks.vocational).map(([subject, value]) => (
+                    <div key={subject} className="space-y-2">
+                      <Label className="capitalize">{subject.replace(/([A-Z])/g, ' $1').trim()}</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={value}
+                        onChange={(e) => updateMark('vocational', subject, e.target.value)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="flex justify-end">
+              <Button onClick={handleSaveMarks}>
+                Save Academic Marks
+              </Button>
+            </div>
+
+            {currentMarks && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Computed Averages</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {Object.entries(currentMarks.averages).map(([stream, avg]) => (
+                      <div key={stream} className="text-center p-3 border rounded">
+                        <div className="text-sm text-muted-foreground capitalize">{stream}</div>
+                        <div className="text-2xl font-bold">{Math.round(avg)}%</div>
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             )}

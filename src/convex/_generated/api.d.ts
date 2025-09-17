@@ -13,6 +13,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as assessments from "../assessments.js";
 import type * as auth_emailOtp from "../auth/emailOtp.js";
 import type * as auth from "../auth.js";
 import type * as careerPaths from "../careerPaths.js";
@@ -23,6 +24,7 @@ import type * as importantDates from "../importantDates.js";
 import type * as recommendations from "../recommendations.js";
 import type * as resources from "../resources.js";
 import type * as seedData from "../seedData.js";
+import type * as studentMarks from "../studentMarks.js";
 import type * as users from "../users.js";
 
 /**
@@ -34,6 +36,7 @@ import type * as users from "../users.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  assessments: typeof assessments;
   "auth/emailOtp": typeof auth_emailOtp;
   auth: typeof auth;
   careerPaths: typeof careerPaths;
@@ -44,6 +47,7 @@ declare const fullApi: ApiFromModules<{
   recommendations: typeof recommendations;
   resources: typeof resources;
   seedData: typeof seedData;
+  studentMarks: typeof studentMarks;
   users: typeof users;
 }>;
 export declare const api: FilterApi<
