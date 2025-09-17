@@ -1,20 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, GraduationCap, MapPin, TrendingUp } from "lucide-react";
+import { BookOpen, GraduationCap, MapPin, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router";
 
 export default function Hero() {
-  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-
-  const handleGetStarted = () => {
-    if (isAuthenticated) {
-      navigate("/dashboard");
-    } else {
-      navigate("/auth");
-    }
-  };
 
   const features = [
     {
@@ -88,15 +79,6 @@ export default function Hero() {
               transition={{ delay: 0.5 }}
               className="flex flex-col sm:flex-row gap-4"
             >
-              <Button
-                size="lg"
-                onClick={handleGetStarted}
-                className="text-lg px-8 py-6 rounded-xl"
-              >
-                {isAuthenticated ? "Go to Dashboard" : "Get Started Free"}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              
               <Button
                 variant="outline"
                 size="lg"

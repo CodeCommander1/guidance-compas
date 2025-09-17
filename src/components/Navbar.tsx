@@ -41,7 +41,7 @@ export default function Navbar() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
               <BookOpen className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold tracking-tight">EduGuide</span>
+            <span className="text-xl font-bold tracking-tight">Margdarshan</span>
           </Link>
 
           {/* Desktop Navigation */}
