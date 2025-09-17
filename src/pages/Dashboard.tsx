@@ -151,13 +151,6 @@ export default function Dashboard() {
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                <Button
-                  variant="secondary"
-                  className="text-lg px-8 py-6 rounded-xl"
-                  onClick={() => navigate("/assessment")}
-                >
-                  Take Assessment
-                </Button>
                 <Button onClick={handleGenerateRecommendations}>
                   Generate New Recommendations
                 </Button>
