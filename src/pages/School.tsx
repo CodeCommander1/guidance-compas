@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { CardFooter } from "@/components/ui/card";
 
 export default function School() {
-  const { isLoading, isAuthenticated } = useAuth();
+  const { isLoading, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const roleDoc = useQuery(api.roles.getCurrentRole, {});
   const setRole = useMutation(api.roles.setRole);
@@ -21,6 +21,7 @@ export default function School() {
   const [search, setSearch] = useState("");
   const students = useQuery(api.school.listStudents, { search, limit: 100 });
   const upsertMarksSchool = useMutation(api.school.upsertMarksForStudentBySchool);
+  const updateMyName = useMutation(api.profile.updateMyName);
 
   // Selected student and marks form state
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
@@ -31,6 +32,21 @@ export default function School() {
     arts: { history: 0, politicalScience: 0, sociology: 0, psychology: 0, languages: 0, fineArts: 0 },
     vocational: { agriculture: 0, it: 0, homeScience: 0, hospitality: 0, design: 0, skills: 0 },
   });
+
+  const [profileName, setProfileName] = useState<string>("");
+  const [profileSchoolName, setProfileSchoolName] = useState<string>("");
+
+  useEffect(() => {
+    if (user) {
+      setProfileName(user.name || "");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (roleDoc) {
+      setProfileSchoolName(roleDoc.schoolName || "");
+    }
+  }, [roleDoc]);
 
   const updateMark = (stream: keyof typeof marks, subject: string, value: string) => {
     const num = Math.max(0, Math.min(100, parseInt(value) || 0));
@@ -64,6 +80,21 @@ export default function School() {
       navigate("/school");
     } catch {
       toast.error("Failed to switch role");
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      if (profileName && profileName !== (user?.name || "")) {
+        await updateMyName({ name: profileName });
+      }
+      // Persist school name via roles.setRole
+      if (profileSchoolName !== (roleDoc?.schoolName || "")) {
+        await setRole({ role: "school", schoolName: profileSchoolName || "Your School" });
+      }
+      toast.success("Profile updated");
+    } catch {
+      toast.error("Failed to update profile");
     }
   };
 
@@ -124,6 +155,37 @@ export default function School() {
           </motion.div>
         ) : (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+            {/* Profile (Editable) */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Profile</CardTitle>
+                <CardDescription>Update your display name and school name</CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="displayName">Display Name</Label>
+                  <Input
+                    id="displayName"
+                    placeholder="Your name"
+                    value={profileName}
+                    onChange={(e) => setProfileName(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="schoolName">School Name</Label>
+                  <Input
+                    id="schoolName"
+                    placeholder="Enter school name"
+                    value={profileSchoolName}
+                    onChange={(e) => setProfileSchoolName(e.target.value)}
+                  />
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-end">
+                <Button onClick={handleSaveProfile}>Save Profile</Button>
+              </CardFooter>
+            </Card>
+
             {/* Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Card>

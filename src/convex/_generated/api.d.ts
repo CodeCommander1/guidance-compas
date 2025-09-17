@@ -21,6 +21,7 @@ import type * as colleges from "../colleges.js";
 import type * as courses from "../courses.js";
 import type * as http from "../http.js";
 import type * as importantDates from "../importantDates.js";
+import type * as profile from "../profile.js";
 import type * as recommendations from "../recommendations.js";
 import type * as resources from "../resources.js";
 import type * as roles from "../roles.js";
@@ -46,6 +47,7 @@ declare const fullApi: ApiFromModules<{
   courses: typeof courses;
   http: typeof http;
   importantDates: typeof importantDates;
+  profile: typeof profile;
   recommendations: typeof recommendations;
   resources: typeof resources;
   roles: typeof roles;
