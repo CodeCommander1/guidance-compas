@@ -4,15 +4,18 @@ import { motion } from "framer-motion";
 import { BookOpen, Menu, User, X } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 export default function Navbar() {
   const { isAuthenticated, user, signOut } = useAuth();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const roleDoc = useQuery(api.roles.getCurrentRole, {});
 
   const handleAuthAction = () => {
     if (isAuthenticated) {
-      navigate("/dashboard");
+      navigate(roleDoc?.role === "school" ? "/school" : "/dashboard");
     } else {
       navigate("/auth");
     }
@@ -61,11 +64,14 @@ export default function Navbar() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => navigate("/dashboard")}
+                  onClick={() => navigate(roleDoc?.role === "school" ? "/school" : "/dashboard")}
                   className="flex items-center space-x-2"
                 >
                   <User className="h-4 w-4" />
-                  <span>{user?.name || "Dashboard"}</span>
+                  <span>{user?.name || (roleDoc?.role === "school" ? "School Portal" : "Dashboard")}</span>
+                  <span className="ml-2 px-2 py-0.5 rounded bg-primary/10 text-primary text-xs">
+                    {roleDoc?.role === "school" ? "School" : "Student"}
+                  </span>
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => signOut()}>
                   Sign Out
@@ -119,13 +125,16 @@ export default function Navbar() {
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        navigate("/dashboard");
+                        navigate(roleDoc?.role === "school" ? "/school" : "/dashboard");
                         setIsMobileMenuOpen(false);
                       }}
                       className="justify-start"
                     >
                       <User className="h-4 w-4 mr-2" />
-                      {user?.name || "Dashboard"}
+                      {user?.name || (roleDoc?.role === "school" ? "School Portal" : "Dashboard")}
+                      <span className="ml-2 px-2 py-0.5 rounded bg-primary/10 text-primary text-xs">
+                        {roleDoc?.role === "school" ? "School" : "Student"}
+                      </span>
                     </Button>
                     <Button
                       variant="outline"
